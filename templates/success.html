@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Order Successful | NULL.{% endblock %}
+
+{% block hero %}{% endblock %}
+
+{% block content %}
+<section class="success-page">
+    <div class="success-card">
+        <p class="success-label">Checkout Successful</p>
+        <h1>Thank you, {{ order.customer_name }}.</h1>
+        <p class="success-text">
+            Your order has been placed successfully.
+        </p>
+        <p class="success-total">
+            Final amount paid: £{{ "%.2f"|format(order.total_amount) }}
+        </p>
+
+        <div class="success-meta">
+            <p><strong>Order Number:</strong> {{ order.id }}</p>
+            <p><strong>Order Date:</strong> {{ order.created_at.strftime("%d/%m/%Y %H:%M") }}</p>
+        </div>
+
+        <div class="success-actions">
+            <a href="{{ url_for('invoice', order_id=order.id) }}" class="details-button">View Invoice</a>
+            <a href="{{ url_for('home') }}" class="secondary-button">Return to Home</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

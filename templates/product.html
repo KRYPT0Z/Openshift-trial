@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} | NULL.{% endblock %}
+
+{% block hero %}{% endblock %}
+
+{% block content %}
+<section class="product-page">
+    {% if request.args.get("added") %}
+        <div class="basket-popup">
+            <div>
+                <p class="basket-popup-title">Added to Basket</p>
+                <p class="basket-popup-text">{{ product.name }} has been added to your basket.</p>
+            </div>
+
+            <div class="basket-popup-actions">
+                <a href="{{ url_for('basket') }}" class="details-button">View Basket</a>
+                <a href="{{ url_for('product_page', product_id=product.id) }}" class="secondary-button">Continue Shopping</a>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="product-page-grid">
+        <div class="product-page-image-wrapper">
+            <img
+                src="{{ url_for('static', filename='images/' + product.image) }}"
+                alt="{{ product.name }}"
+                class="product-page-image"
+            >
+        </div>
+
+        <div class="product-page-info">
+            <p class="product-page-label">Conceptual Luxury Object</p>
+            <h1>{{ product.name }}</h1>
+            <p class="product-page-price">£{{ "%.2f"|format(product.price) }}</p>
+            <p class="product-page-impact"><strong>Environmental Impact:</strong> {{ "%.1f"|format(product.impact) }} kg CO2e</p>
+
+            <div class="product-page-description">
+                <p>{{ product.description }}</p>
+            </div>
+
+            <div class="product-page-actions">
+                <a href="{{ url_for('add_to_basket', product_id=product.id, source='product') }}" class="details-button">
+                    Add to Basket
+                </a>
+
+                <a href="{{ url_for('home') }}" class="secondary-button">
+                    Back to Collection
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

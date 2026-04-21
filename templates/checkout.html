@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout | NULL.{% endblock %}
+
+{% block hero %}{% endblock %}
+
+{% block content %}
+<section class="checkout-page">
+    <div class="checkout-header">
+        <h1>Checkout</h1>
+        <p>Enter your details and confirm your conceptual purchase.</p>
+    </div>
+
+    <div class="checkout-grid">
+        <div class="checkout-form-panel">
+            <form method="POST" action="{{ url_for('checkout') }}" class="checkout-form" novalidate>
+                <div class="form-group">
+                    <label for="full_name">Full Name</label>
+                    <input
+                        type="text"
+                        id="full_name"
+                        name="full_name"
+                        value="{{ form_data.full_name }}"
+                        class="form-input"
+                    >
+                    {% if errors.full_name %}
+                        <p class="form-error">{{ errors.full_name }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input
+                        type="text"
+                        id="email"
+                        name="email"
+                        value="{{ form_data.email }}"
+                        class="form-input"
+                    >
+                    {% if errors.email %}
+                        <p class="form-error">{{ errors.email }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="address">Billing Address</label>
+                    <textarea
+                        id="address"
+                        name="address"
+                        class="form-input form-textarea"
+                    >{{ form_data.address }}</textarea>
+                    {% if errors.address %}
+                        <p class="form-error">{{ errors.address }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="card_number">Card Number</label>
+                    <input
+                        type="text"
+                        id="card_number"
+                        name="card_number"
+                        value="{{ form_data.card_number }}"
+                        class="form-input"
+                        placeholder="1234 5678 9012 3456"
+                    >
+                    {% if errors.card_number %}
+                        <p class="form-error">{{ errors.card_number }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="expiry_date">Expiry Date</label>
+                        <input
+                            type="text"
+                            id="expiry_date"
+                            name="expiry_date"
+                            value="{{ form_data.expiry_date }}"
+                            class="form-input"
+                            placeholder="MM/YY"
+                            maxlength="5"
+                            inputmode="numeric"
+                            autocomplete="cc-exp"
+                        >
+                        {% if errors.expiry_date %}
+                            <p class="form-error">{{ errors.expiry_date }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cvv">CVV</label>
+                        <input
+                            type="text"
+                            id="cvv"
+                            name="cvv"
+                            value="{{ form_data.cvv }}"
+                            class="form-input"
+                            placeholder="123"
+                        >
+                        {% if errors.cvv %}
+                            <p class="form-error">{{ errors.cvv }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="checkout-actions">
+                    <a href="{{ url_for('basket') }}" class="secondary-button">Back to Basket</a>
+                    <button type="submit" class="submit-button">Confirm Purchase</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="checkout-summary-panel">
+            <h2>Order Summary</h2>
+
+            <div class="checkout-summary-list">
+                {% for item in items %}
+                    <div class="checkout-summary-item">
+                        <div>
+                            <p class="summary-item-name">{{ item.product.name }}</p>
+                            <p class="summary-item-quantity">Quantity: {{ item.quantity }}</p>
+                        </div>
+                        <p class="summary-item-total">£{{ "%.2f"|format(item.item_total) }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="checkout-total">
+                <h3>Total: £{{ "%.2f"|format(total) }}</h3>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const expiryInput = document.getElementById("expiry_date");
+
+    expiryInput.addEventListener("input", function () {
+        let digits = expiryInput.value.replace(/\D/g, "").slice(0, 4);
+
+        if (digits.length === 1) {
+            const firstDigit = parseInt(digits, 10);
+
+            if (firstDigit > 1) {
+                digits = "0" + digits;
+            }
+        }
+
+        if (digits.length >= 3) {
+            expiryInput.value = digits.slice(0, 2) + "/" + digits.slice(2);
+        } else if (digits.length === 2) {
+            expiryInput.value = digits + "/";
+        } else {
+            expiryInput.value = digits;
+        }
+    });
+
+    expiryInput.addEventListener("keydown", function (event) {
+        if (event.key === "Backspace" && expiryInput.value.length === 3 && expiryInput.value.endsWith("/")) {
+            expiryInput.value = expiryInput.value.slice(0, 2);
+            event.preventDefault();
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block title %}Home | NULL.{% endblock %}
+
+{% block content %}
+<section class="products-section">
+    {% if added_product %}
+        <div class="basket-popup">
+            <div>
+                <p class="basket-popup-title">Added to Basket</p>
+                <p class="basket-popup-text">{{ added_product.name }} has been added to your basket.</p>
+            </div>
+
+            <div class="basket-popup-actions">
+                <a href="{{ url_for('basket') }}" class="details-button">View Basket</a>
+                <a href="{{ url_for('home', sort=current_sort, search=search_query) }}" class="secondary-button">Continue Shopping</a>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="section-header">
+        <div>
+            <h2 class="section-title">Featured Collection</h2>
+            <p class="section-subtitle">A curated selection of conceptual luxury objects.</p>
+        </div>
+
+        <form method="GET" action="{{ url_for('home') }}" class="search-sort-form">
+            <div class="search-group">
+                <label for="search" class="sort-label">Search</label>
+                <input
+                    type="text"
+                    id="search"
+                    name="search"
+                    value="{{ search_query }}"
+                    class="search-input"
+                    placeholder="Search by product name"
+                >
+            </div>
+
+            <div class="sort-group">
+                <label for="sort" class="sort-label">Sort by</label>
+                <select name="sort" id="sort" class="sort-select">
+                    <option value="default" {% if current_sort == "default" %}selected{% endif %}>Default</option>
+                    <option value="name" {% if current_sort == "name" %}selected{% endif %}>Name</option>
+                    <option value="price" {% if current_sort == "price" %}selected{% endif %}>Price</option>
+                    <option value="impact" {% if current_sort == "impact" %}selected{% endif %}>Environmental Impact</option>
+                </select>
+            </div>
+
+            <div class="search-actions">
+                <button type="submit" class="details-button">Apply</button>
+                {% if search_query or current_sort != "default" %}
+                    <a href="{{ url_for('home') }}" class="secondary-button">Reset</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    {% if search_query %}
+        <div class="search-status">
+            <p>Showing results for product name: <strong>{{ search_query }}</strong></p>
+        </div>
+    {% endif %}
+
+    {% if products %}
+        <div class="product-grid">
+            {% for product in products %}
+                <article class="product-card hover-card" data-product-id="{{ product.id }}">
+                    <img
+                        src="{{ url_for('static', filename='images/' + product.image) }}"
+                        alt="{{ product.name }}"
+                        class="product-image"
+                    >
+
+                    <div class="product-info">
+                        <h3>{{ product.name }}</h3>
+                        <p class="product-description">{{ product.description }}</p>
+                        <p class="product-price">£{{ "%.2f"|format(product.price) }}</p>
+                        <p class="product-impact"><strong>Impact:</strong> {{ "%.1f"|format(product.impact) }} kg CO2e</p>
+
+                        <div class="card-actions">
+                            <a href="{{ url_for('product_page', product_id=product.id) }}" class="details-button">
+                                View Details
+                            </a>
+
+                            <a href="{{ url_for('add_to_basket', product_id=product.id, source='home', sort=current_sort, search=search_query) }}" class="secondary-button">
+                                Add to Basket
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="hover-panel" id="hover-panel-{{ product.id }}">
+                        <p class="hover-loading">Loading details...</p>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="no-results">
+            <h3>No products found</h3>
+            <p>Try a different product name or reset the filters.</p>
+            <a href="{{ url_for('home') }}" class="details-button">View All Products</a>
+        </div>
+    {% endif %}
+</section>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const productCards = document.querySelectorAll(".hover-card");
+
+    productCards.forEach(function (card) {
+        const productId = card.dataset.productId;
+        const hoverPanel = card.querySelector(".hover-panel");
+        let hasLoaded = false;
+
+        function showHoverPanel() {
+            hoverPanel.classList.add("visible");
+
+            if (hasLoaded) {
+                return;
+            }
+
+            fetch(`/product/${productId}/hover_details`)
+                .then(function (response) {
+                    if (!response.ok) {
+                        throw new Error("Failed to load hover details.");
+                    }
+                    return response.json();
+                })
+                .then(function (data) {
+                    hoverPanel.innerHTML = `
+                        <p class="hover-panel-label">Quick Preview</p>
+                        <h4>${data.name}</h4>
+                        <p class="hover-panel-description">${data.description}</p>
+                        <p class="hover-panel-price">${data.price}</p>
+                        <p class="hover-panel-impact"><strong>Impact:</strong> ${data.impact}</p>
+                    `;
+                    hasLoaded = true;
+                })
+                .catch(function () {
+                    hoverPanel.innerHTML = `
+                        <p class="hover-panel-label">Quick Preview</p>
+                        <p class="hover-panel-description">Unable to load details right now.</p>
+                    `;
+                });
+        }
+
+        function hideHoverPanel() {
+            hoverPanel.classList.remove("visible");
+        }
+
+        card.addEventListener("mouseenter", showHoverPanel);
+        card.addEventListener("mouseleave", hideHoverPanel);
+        card.addEventListener("focusin", showHoverPanel);
+        card.addEventListener("focusout", hideHoverPanel);
+    });
+});
+</script>
+{% endblock %}

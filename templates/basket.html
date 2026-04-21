@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Basket | NULL.{% endblock %}
+
+{% block hero %}{% endblock %}
+
+{% block content %}
+<section class="basket-page">
+    <div class="basket-header">
+        <h1>Your Basket</h1>
+        <p>Review your selected conceptual objects before checkout.</p>
+    </div>
+
+    {% if items %}
+        <div class="basket-table-wrapper">
+            <table class="basket-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Item Total</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                        <tr>
+                            <td>{{ item.product.name }}</td>
+                            <td>
+                                <div class="quantity-controls">
+                                    <a href="{{ url_for('decrease_item', product_id=item.product.id) }}" class="quantity-button">−</a>
+                                    <span class="quantity-value">{{ item.quantity }}</span>
+                                    <a href="{{ url_for('increase_item', product_id=item.product.id) }}" class="quantity-button">+</a>
+                                </div>
+                            </td>
+                            <td>£{{ "%.2f"|format(item.item_total) }}</td>
+                            <td>
+                                <a href="{{ url_for('remove_item', product_id=item.product.id) }}" class="table-link">
+                                    Remove All
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="basket-summary">
+            <h2>Total: £{{ "%.2f"|format(total) }}</h2>
+
+            <div class="basket-actions">
+                <a href="{{ url_for('home') }}" class="details-button">Continue Shopping</a>
+                <a href="{{ url_for('checkout') }}" class="details-button">Proceed to Checkout</a>
+                <a href="{{ url_for('clear_basket') }}" class="secondary-button">Clear Basket</a>
+            </div>
+        </div>
+    {% else %}
+        <div class="empty-basket">
+            <p>Your basket is empty.</p>
+            <a href="{{ url_for('home') }}" class="details-button">Continue Shopping</a>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}
