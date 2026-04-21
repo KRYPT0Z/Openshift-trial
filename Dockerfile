@@ -72,4 +72,4 @@ RUN chmod -R g+w /usr/src/app/instance
 #
 # Replace the values BELOW to match your own project
 # ============================================================
-CMD gunicorn --bind 0.0.0.0:5000 onlineshop:app
+CMD gunicorn --bind 0.0.0.0:5000 app:app
